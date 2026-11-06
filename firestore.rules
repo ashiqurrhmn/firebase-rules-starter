@@ -1,0 +1,80 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn()
+        && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.admin == true;
+    }
+
+    match /users/{uid} {
+
+      allow read: if isOwner(uid) || isAdmin();
+
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly([
+          'displayName',
+          'role',
+          'createdAt'
+        ])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 1
+        && request.resource.data.displayName.size() <= 60
+        && request.resource.data.role == 'user';
+
+      allow update: if isOwner(uid)
+        && request.resource.data
+          .diff(resource.data)
+          .affectedKeys()
+          .hasOnly(['displayName'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 1
+        && request.resource.data.displayName.size() <= 60;
+
+      allow delete: if false;
+
+      match /tasks/{taskId} {
+
+        function validTask() {
+          return request.resource.data.keys().hasOnly([
+              'title',
+              'done'
+            ])
+            && request.resource.data.title is string
+            && request.resource.data.title.size() >= 1
+            && request.resource.data.title.size() <= 60
+            && request.resource.data.done is bool;
+        }
+
+        allow read: if isOwner(uid);
+
+        allow create: if isOwner(uid)
+          && validTask();
+
+        allow update: if isOwner(uid)
+          && validTask();
+
+        allow delete: if isOwner(uid);
+      }
+    }
+
+    match /appConfig/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

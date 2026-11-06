@@ -1,0 +1,21 @@
+{
+  "name": "firebase-rules-starter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Week 1 exercise: write Firestore and Storage security rules until all tests pass.",
+  "scripts": {
+    "emulators": "firebase emulators:start --project demo-intern-rules",
+    "test": "firebase emulators:exec --only firestore,storage --project demo-intern-rules \"node --test test/firestore.test.js test/storage.test.js\"",
+    "test:firestore": "firebase emulators:exec --only firestore --project demo-intern-rules \"node --test test/firestore.test.js\"",
+    "test:storage": "firebase emulators:exec --only storage --project demo-intern-rules \"node --test test/storage.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "firebase": "^12.19.0",
+    "firebase-tools": "^14.27.0"
+  }
+}

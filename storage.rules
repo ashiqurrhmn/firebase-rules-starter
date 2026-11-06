@@ -1,0 +1,22 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ------------------------------------------------------------------
+    // Path: users/{uid}/avatar/{fileName}
+    // Requirements are listed in docs/SPEC.md.
+    // ------------------------------------------------------------------
+    match /users/{uid}/avatar/{fileName} {
+
+      // TODO: replace the line below with granular rules for read, create,
+      // update and delete.
+      allow read, write: if false;
+    }
+
+    // Default: deny everything that is not explicitly allowed above.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
